@@ -1,5 +1,6 @@
 {
   "name": "Badminton Analyzer",
   "description": "A simple badminton analysis app",
-  "repository": "https://github.com/alintpn/test",
+  "repository": "https://github.com/yourusername/test",
   "keywords": ["node", "express", "badminton"]
+}
