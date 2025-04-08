@@ -10,26 +10,20 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// Add comprehensive CORS configuration
+// CORS middleware must come before your routes
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   
-  // Handle preflight requests
+  // Handle preflight
   if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
+    return res.status(200).end();
   }
+  
+  next();
 });
-
-// Also use the cors middleware
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Content-Length', 'Accept', 'Authorization', 'X-Requested-With']
-}));
 
 // Create uploads directory
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -96,6 +90,11 @@ app.get('/test-upload', (req, res) => {
     </body>
     </html>
   `);
+});
+
+// Add handler for GET requests to the upload endpoint
+app.get('/api/upload-video', (req, res) => {
+  res.send('This is the video upload endpoint. Please use POST method with a multipart form to upload videos.');
 });
 
 // File upload endpoint
