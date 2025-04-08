@@ -134,8 +134,28 @@ app.post('/api/upload-video', (req, res) => {
 });
 
 // Mock analysis endpoint
+// Mock analysis endpoint with randomized scores
 app.get('/api/analysis/:id', (req, res) => {
-  // Return mock data for testing
+  // Generate random scores between 60-95
+  const generateScore = () => Math.floor(Math.random() * 36) + 60;
+  
+  // Generate technique scores
+  const techniqueOverall = generateScore();
+  const backswing = generateScore();
+  const followThrough = generateScore();
+  const contactPoint = generateScore();
+  const racketPath = generateScore();
+  
+  // Generate footwork scores
+  const footworkOverall = generateScore();
+  const movementEfficiency = generateScore();
+  const recoverySpeed = generateScore();
+  const courtCoverage = generateScore();
+  
+  // Generate strategy score
+  const strategyOverall = generateScore();
+  
+  // Return randomized mock data
   res.json({
     success: true,
     analysis: {
@@ -143,7 +163,7 @@ app.get('/api/analysis/:id', (req, res) => {
       status: "completed",
       results: {
         technique: {
-          overallScore: 78,
+          overallScore: techniqueOverall,
           feedback: [
             "Good racket preparation on your forehand side",
             "Try to maintain a higher elbow position during backhand strokes",
@@ -151,10 +171,10 @@ app.get('/api/analysis/:id', (req, res) => {
             "Work on wrist positioning during net shots"
           ],
           detailedMetrics: {
-            backswing: 82,
-            followThrough: 75,
-            contactPoint: 68,
-            racketPath: 86
+            backswing: backswing,
+            followThrough: followThrough,
+            contactPoint: contactPoint,
+            racketPath: racketPath
           },
           timeMarkers: [
             { time: 15, label: "Good forehand technique" },
@@ -163,7 +183,7 @@ app.get('/api/analysis/:id', (req, res) => {
           ]
         },
         footwork: {
-          overallScore: 72,
+          overallScore: footworkOverall,
           feedback: [
             "Your split-step timing is good",
             "Work on faster recovery to the center court",
@@ -171,9 +191,9 @@ app.get('/api/analysis/:id', (req, res) => {
             "Try to use more chassé steps when moving to the backhand corner"
           ],
           detailedMetrics: {
-            movementEfficiency: 70,
-            recoverySpeed: 65,
-            courtCoverage: 80
+            movementEfficiency: movementEfficiency,
+            recoverySpeed: recoverySpeed,
+            courtCoverage: courtCoverage
           },
           timeMarkers: [
             { time: 28, label: "Good split-step" },
@@ -182,7 +202,7 @@ app.get('/api/analysis/:id', (req, res) => {
           ]
         },
         strategy: {
-          overallScore: 75,
+          overallScore: strategyOverall,
           feedback: [
             "Good variety in your shot selection",
             "Try to use more attacking clears when opponent is at front court",
@@ -206,7 +226,6 @@ app.get('/api/analysis/:id', (req, res) => {
     }
   });
 });
-
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
