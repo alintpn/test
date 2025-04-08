@@ -9,7 +9,27 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors({ origin: '*' }));
+
+// Add comprehensive CORS configuration
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
+// Also use the cors middleware
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Content-Length', 'Accept', 'Authorization', 'X-Requested-With']
+}));
 
 // Create uploads directory
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -79,25 +99,38 @@ app.get('/test-upload', (req, res) => {
 });
 
 // File upload endpoint
-app.post('/api/upload-video', upload.single('video'), (req, res) => {
-  console.log('Upload request received');
+app.post('/api/upload-video', (req, res) => {
+  console.log('Received upload request');
+  console.log('Headers:', req.headers);
   
-  // Check if file was received
-  if (!req.file) {
-    return res.status(400).json({
-      success: false,
-      error: 'No file was uploaded'
+  // Use multer middleware
+  upload.single('video')(req, res, function(err) {
+    if (err) {
+      console.error('Upload error:', err);
+      return res.status(400).json({
+        success: false,
+        error: err.message
+      });
+    }
+    
+    // Check if file exists
+    if (!req.file) {
+      console.error('No file received in the request');
+      return res.status(400).json({
+        success: false,
+        error: 'No file was uploaded'
+      });
+    }
+    
+    console.log('File received successfully:', req.file);
+    console.log('Form data:', req.body);
+    
+    // Send success response
+    res.json({
+      success: true,
+      videoId: 'test-' + Date.now(),
+      message: 'Video upload received successfully'
     });
-  }
-  
-  console.log('File received:', req.file);
-  console.log('Form data:', req.body);
-  
-  // Send success response
-  res.json({
-    success: true,
-    videoId: 'test-' + Date.now(),
-    message: 'Video upload received successfully'
   });
 });
 
@@ -123,7 +156,12 @@ app.get('/api/analysis/:id', (req, res) => {
             followThrough: 75,
             contactPoint: 68,
             racketPath: 86
-          }
+          },
+          timeMarkers: [
+            { time: 15, label: "Good forehand technique" },
+            { time: 42, label: "Backhand needs improvement" },
+            { time: 78, label: "Excellent smash execution" }
+          ]
         },
         footwork: {
           overallScore: 72,
@@ -137,7 +175,12 @@ app.get('/api/analysis/:id', (req, res) => {
             movementEfficiency: 70,
             recoverySpeed: 65,
             courtCoverage: 80
-          }
+          },
+          timeMarkers: [
+            { time: 28, label: "Good split-step" },
+            { time: 56, label: "Slow recovery to center" },
+            { time: 92, label: "Efficient forehand movement" }
+          ]
         },
         strategy: {
           overallScore: 75,
@@ -153,6 +196,11 @@ app.get('/api/analysis/:id', (req, res) => {
             { name: "Drops", value: 18 },
             { name: "Drives", value: 12 },
             { name: "Smashes", value: 10 }
+          ],
+          timeMarkers: [
+            { time: 35, label: "Good shot variation" },
+            { time: 68, label: "Missed attacking opportunity" },
+            { time: 105, label: "Effective defensive play" }
           ]
         }
       }
